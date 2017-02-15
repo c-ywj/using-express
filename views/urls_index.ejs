@@ -10,7 +10,9 @@
       <% for(let key in urls) { %>
       <li>
       <form method="POST" action="/urls/<%= key %>/delete">
-        <%= urls[key] %> - <%= key %> <button type="submit">DELETE</button>
+        <%= urls[key] %> - <%= key %>
+        <a href="http://localhost:8080/urls/<%= key %>">Edit</a>
+        <button type="submit">DELETE</button>
       </form>
       </li>
       <% } %>

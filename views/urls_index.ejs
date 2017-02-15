@@ -6,11 +6,15 @@
   <body>
   <% include ./partials/_header %>
   <p>Below is the list of URLs in shortened forms</p>
-  <ul>
-    <% for(let key in urls) { %>
-      <li> <%= urls[key] %> - <%= key %> </li>
-    <% } %>
-  </ul>
+    <ul>
+      <% for(let key in urls) { %>
+      <li>
+      <form method="POST" action="/urls/<%= key %>/delete">
+        <%= urls[key] %> - <%= key %> <button type="submit">DELETE</button>
+      </form>
+      </li>
+      <% } %>
+    </ul>
   <a href="">link for shortening a new URL</a>
   </body>
 </html>

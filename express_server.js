@@ -44,6 +44,7 @@ app.get("/urls/new", (req,res) => {
     username: req.cookies["username"]
   };
   res.render("urls_new", templateVars);
+  res.redirect("/urls/new");
 });
 
 app.get("/urls/:id", (req, res) => {
@@ -51,7 +52,7 @@ app.get("/urls/:id", (req, res) => {
     longURL: urlDatabase[req.params.id],
     username: req.cookies["username"]
   };
-  res.render("urls_show", templateVars)
+  res.render("urls_show", templateVars);
 });
 
 app.get("/u/:shortURL", (req, res) => {

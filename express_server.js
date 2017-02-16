@@ -25,7 +25,7 @@ const users = {
     email: "user2@example.com",
     password: "dishwasher-funk"
   }
-}
+};
 
 function generateRandomString () {
   const charBank = "1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
@@ -105,9 +105,18 @@ app.post("/logout", (req, res) => {
   res.redirect("/urls");
 });
 
-// app.post("/register", (req, res) => {
-
-// });
+app.post("/register", (req, res) => {
+  let emailInput = req.body["email"];
+  let pwdInput = req.body["password"];
+  let userID = generateRandomString();
+  users[userID] = { "id": userID,
+  "email": emailInput,
+  "password": pwdInput,
+  };
+  res.cookie("user_id", userID);
+  console.log(users);
+  res.redirect("/");
+});
 
 app.get("/urls.json", (req, res) => {
   res.json(urlDatabase);

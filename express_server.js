@@ -109,11 +109,21 @@ app.post("/register", (req, res) => {
   let emailInput = req.body["email"];
   let pwdInput = req.body["password"];
   let userID = generateRandomString();
-  users[userID] = { "id": userID,
-  "email": emailInput,
-  "password": pwdInput,
-  };
-  res.cookie("user_id", userID);
+  if (emailInput === "" && pwdInput === "") {
+    res.end("Error" + 400);
+  } else if (emailInput) {
+    for (let key in users) {
+      if (users[key]["email"] === emailInput) {
+        res.end("Error" + 400)
+      }
+    }
+  } else{
+    users[userID] = { "id": userID,
+    "email": emailInput,
+    "password": pwdInput,
+    };
+    res.cookie("user_id", userID);
+  }
   console.log(users);
   res.redirect("/");
 });

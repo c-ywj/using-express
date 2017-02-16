@@ -1,16 +1,13 @@
 Welcome to TinyApp!
 
-<% if (username) {%>
+<% if (user_id) {%>
 <form action="/logout" method="POST" style="margin:50px;">
 <button type="submit">Log out</button>
-<%= username %>
+<%= user_id %>
 <% } else {%>
 
 
-<form action="/login" method="POST" style="margin:50px;">
-<input type="text" id="login" name="username">
-<button type="submit">Log in</button>
-</form>
-<h1>Welcome... <%= username %> </h1>
+
+<h1> Welcome... <%= user_id %> </h1>
 
 <% } %>

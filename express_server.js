@@ -37,6 +37,14 @@ function generateRandomString () {
   return result;
 }
 
+function checkForEmail (emailInput) {
+  for (let key in users) {
+    if (users[key]["email"] === emailInput) {
+      return true;
+    }
+  }
+}
+
 
 //app.get in this case serves as the if statements: IF request is GET @ / ,
 //respond with respond object, with .end method to send back "Hello!"
@@ -47,14 +55,16 @@ app.get("/", (req, res) => {
 app.get("/urls", (req, res) => {
   let templateVars = {
     urls: urlDatabase,
-    username: req.cookies["username"]
+    user_id: req.cookies["user_id"],
+    users: users,
   };
   res.render("urls_index", templateVars);
 });
 
 app.get("/urls/new", (req,res) => {
   let templateVars = {
-    username: req.cookies["username"]
+    user_id: req.cookies["user_id"],
+    users: users
   };
   res.render("urls_new", templateVars);
   res.redirect("/urls/new");
@@ -63,7 +73,8 @@ app.get("/urls/new", (req,res) => {
 app.get("/urls/:id", (req, res) => {
   let templateVars = {shortURL: req.params.id,
     longURL: urlDatabase[req.params.id],
-    username: req.cookies["username"]
+    user_id: req.cookies["user_id"],
+    users: users
   };
   res.render("urls_show", templateVars);
 });
@@ -96,12 +107,12 @@ app.post("/urls/:id/update", (req, res) => {
 });
 
 app.post("/login", (req, res) => {
-  res.cookie("username", req.body["username"]);
+  res.cookie("user_id", req.body["user_id"]);
   res.redirect("/");
 });
 
 app.post("/logout", (req, res) => {
-  res.clearCookie("username");
+  res.clearCookie("user_id");
   res.redirect("/urls");
 });
 
@@ -109,19 +120,16 @@ app.post("/register", (req, res) => {
   let emailInput = req.body["email"];
   let pwdInput = req.body["password"];
   let userID = generateRandomString();
+  console.log(userID);
   if (emailInput === "" && pwdInput === "") {
     res.end("Error" + 400);
-  } else if (emailInput) {
-    for (let key in users) {
-      if (users[key]["email"] === emailInput) {
-        res.end("Error" + 400)
-      }
-    }
-  } else{
+  } else if (checkForEmail(emailInput)) {
+      res.end("Error" + 400);
+  } else {
     users[userID] = { "id": userID,
     "email": emailInput,
     "password": pwdInput,
-    };
+    }
     res.cookie("user_id", userID);
   }
   console.log(users);

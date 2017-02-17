@@ -117,7 +117,7 @@ app.post("/login", (req, res) => {
     res.status(403);
     res.send();
   } else {
-    res.cookie("user_id", req.body["user_id"]);
+    res.cookie("user_id", users[loginUserId].id);
     res.redirect("/urls");
   }
 });

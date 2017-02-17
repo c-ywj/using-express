@@ -90,7 +90,7 @@ app.get("/urls/:shortURL", (req, res) => {
 });
 
 app.get("/u/:shortURL", (req, res) => {
-  let longURL = urlDatabase[req.params.shortURL];
+  let longURL = urlDatabase[req.cookies["user_id"]][req.params.shortURL];
   res.redirect(longURL);
 });
 

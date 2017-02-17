@@ -11,9 +11,10 @@
         <% for( let shortURL in urls[userId]) { %>
           <li>
             <form method="POST" action="/urls/<%= shortURL %>/delete">
-              <%= shortURL %> - <%= urls[userId][shortURL] %> - <%= userId %>
-              <a href="http://localhost:8080/urls/<%= shortURL %>">Edit</a>
+              <a href="/u/<%=shortURL%>"> <%= shortURL %> </a> - <%= urls[userId][shortURL] %> - <%= userId %>
+              <p> <a href="http://localhost:8080/urls/<%= shortURL %>">Edit</a>
               <button type="submit">DELETE</button>
+              </p>
             </form>
           </li>
         <% } %>

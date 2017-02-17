@@ -88,6 +88,10 @@ app.get("/register", (req, res) => {
   res.render("urls_register");
 })
 
+app.get("/login", (req, res) => {
+  res.render("urls_login");
+});
+
 app.post("/urls", (req, res) => {
   let result = req.body;
   let randStr = generateRandomString();
@@ -107,8 +111,15 @@ app.post("/urls/:id/update", (req, res) => {
 });
 
 app.post("/login", (req, res) => {
-  res.cookie("user_id", req.body["user_id"]);
-  res.redirect("/");
+  const { email, password } = req.body;
+  const loginUserId = Object.keys(users).find((k) => users[k].email === email);
+  if (!loginUserId || users[loginUserId].password !== password) {
+    res.status(403);
+    res.send();
+  } else {
+    res.cookie("user_id", req.body["user_id"]);
+    res.redirect("/urls");
+  }
 });
 
 app.post("/logout", (req, res) => {
@@ -133,7 +144,7 @@ app.post("/register", (req, res) => {
     res.cookie("user_id", userID);
   }
   console.log(users);
-  res.redirect("/");
+  res.redirect("/urls");
 });
 
 app.get("/urls.json", (req, res) => {

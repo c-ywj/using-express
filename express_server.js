@@ -10,8 +10,12 @@ app.use(bodyParser.urlencoded({extended: true}));
 app.use(cookieParser());
 
 const urlDatabase = {
-  "b2xVn2": "http://www.lighthouselabs.ca",
-  "9sm5xK": "http://www.google.com"
+  "userRandomID": {
+    "b2xVn2": "http://www.lighthouselabs.ca",
+    "9sm5xK": "http://www.google.com"},
+  "user2RandomID": {
+    "b2xVn2": "http://www.lighthouselabs.ca",
+    "9sm5xK": "http://www.google.com"}
 };
 
 const users = {
@@ -49,7 +53,10 @@ function checkForEmail (emailInput) {
 //app.get in this case serves as the if statements: IF request is GET @ / ,
 //respond with respond object, with .end method to send back "Hello!"
 app.get("/", (req, res) => {
-  res.end("Hello!\n");
+  let templateVars = {
+    user_id: req.cookies["user_id"]
+  }
+  res.render("urls_home", templateVars);
 });
 
 app.get("/urls", (req, res) => {
@@ -66,13 +73,16 @@ app.get("/urls/new", (req,res) => {
     user_id: req.cookies["user_id"],
     users: users
   };
-  res.render("urls_new", templateVars);
-  res.redirect("/urls/new");
+  if(req.cookies["user_id"]) {
+    res.render("urls_new", templateVars);
+  } else {
+    res.redirect("/login");
+  }
 });
 
-app.get("/urls/:id", (req, res) => {
-  let templateVars = {shortURL: req.params.id,
-    longURL: urlDatabase[req.params.id],
+app.get("/urls/:shortURL", (req, res) => {
+  let templateVars = {shortURL: req.params.shortURL,
+    longURL: urlDatabase[req.params.shortURL],
     user_id: req.cookies["user_id"],
     users: users
   };
@@ -101,12 +111,16 @@ app.post("/urls", (req, res) => {
 });
 
 app.post("/urls/:shortURL/delete", (req, res) => {
-  delete urlDatabase[req.params.shortURL];
-  res.redirect("/urls");
+  if (req.cookies['user_id']) {
+    delete urlDatabase[req.cookies['user_id']][req.params.shortURL];
+    res.redirect("/urls");
+  } else {
+    res.redirect("/login");
+  }
 });
 
-app.post("/urls/:id/update", (req, res) => {
-  urlDatabase[req.params.id] = req.body["original"];
+app.post("/urls/:shortURL/update", (req, res) => {
+  urlDatabase[req.cookies['user_id']][req.params.shortURL] = req.body["original"];
   res.redirect("/urls");
 });
 
@@ -131,7 +145,6 @@ app.post("/register", (req, res) => {
   let emailInput = req.body["email"];
   let pwdInput = req.body["password"];
   let userID = generateRandomString();
-  console.log(userID);
   if (emailInput === "" && pwdInput === "") {
     res.end("Error" + 400);
   } else if (checkForEmail(emailInput)) {

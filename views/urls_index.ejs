@@ -7,17 +7,14 @@
   <% include ./partials/_header %>
   <p>Below is the list of URLs in shortened forms</p>
     <ul>
-      <% for(let userId in urls) { %>
-        <% for( let shortURL in urls[userId]) { %>
-          <li>
-            <form method="POST" action="/urls/<%= shortURL %>/delete">
-              <a href="/u/<%=shortURL%>"> <%= shortURL %> </a> - <%= urls[userId][shortURL] %> - <%= userId %>
-              <p> <a href="http://localhost:8080/urls/<%= shortURL %>">Edit</a>
-              <button type="submit">DELETE</button>
-              </p>
-            </form>
-          </li>
-        <% } %>
+      <% for(let shortURLS in urls) { %>
+        <li>
+          <form method="POST" action="/urls/<%=shortURLS%>/delete">
+            <a href="/u/<%=shortURLS%>"> <%= shortURLS %> </a> - <%= urls[shortURLS]["longURL"] %> - <%= urls[shortURLS]["userID"] %>
+            <button type="submit">DELETE</button>
+          </form>
+          <p> <a href="http://localhost:8080/urls/<%= shortURLS %>">Edit</a> </p>
+        </li>
       <% } %>
     </ul>
   <a href="/urls/new">link for shortening a new URL</a>

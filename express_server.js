@@ -63,7 +63,11 @@ app.get("/urls", (req, res) => {
     user_id: req.cookies["user_id"],
     users: users,
   };
-  res.render("urls_index", templateVars);
+  if(req.cookies["user_id"]) {
+    res.render("urls_index", templateVars);
+  } else {
+    res.send(401, "Go back and log in first!");
+  }
 });
 
 app.get("/urls/new", (req,res) => {
@@ -74,6 +78,7 @@ app.get("/urls/new", (req,res) => {
   if(req.cookies["user_id"]) {
     res.render("urls_new", templateVars);
   } else {
+    res.status(401);
     res.redirect("/login");
   }
 });
@@ -97,14 +102,17 @@ app.get("/register", (req, res) => {
 })
 
 app.get("/login", (req, res) => {
-  res.render("urls_login");
+  if(req.cookies["user_id"]) {
+    res.redirect("/");
+  } else {
+    res.render("urls_login")
+  }
 });
 
 app.post("/urls", (req, res) => {
   let result = req.body;
   let randStr = generateRandomString();
-  urlDatabase
-  urlDatabase.randStr = result['newURL'];
+  urlDatabase[randStr] = {"longURL": result["newURL"], "userID": req.cookies["user_id"]};
   res.redirect("/urls/");
   console.log(urlDatabase);
 });
@@ -114,8 +122,11 @@ app.post("/urls/:shortURL/delete", (req, res) => {
   if (req.cookies['user_id'] && req.cookies['user_id'] === urlDatabase[req.params.shortURL]["userID"]) {
     delete urlDatabase[req.params.shortURL];
     res.redirect("/urls");
-  } else {
+  } else if (!req.cookies["user_id"]) {
     res.redirect("/login");
+  } else {
+    res.send(401, "sorry you cannot delete this link because it is not YOURS, pleases go back!");
+    res.redirect("/urls");
   }
 });
 

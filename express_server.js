@@ -105,8 +105,8 @@ app.get("/login", (req, res) => {
 app.post("/urls", (req, res) => {
   let result = req.body;
   let randStr = generateRandomString();
-  urlDatabase[randStr] = result["longURL"];
-  res.redirect("/urls/" + randStr);
+  urlDatabase[req.cookies["user_id"]][randStr] = result["longURL"];
+  res.redirect("/urls/");
   console.log(urlDatabase);
 });
 
@@ -146,8 +146,10 @@ app.post("/register", (req, res) => {
   let pwdInput = req.body["password"];
   let userID = generateRandomString();
   if (emailInput === "" && pwdInput === "") {
+    res.status(400);
     res.end("Error" + 400);
   } else if (checkForEmail(emailInput)) {
+      res.status(400);
       res.end("Error" + 400);
   } else {
     users[userID] = { "id": userID,

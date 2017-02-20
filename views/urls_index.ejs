@@ -6,16 +6,17 @@
   <body>
   <% include ./partials/_header %>
   <p>Below is the list of URLs in shortened forms</p>
-    <ul>
-      <% for(let shortURLS in urls) { %>
-        <li>
+      <% for(let shortURLS in userURLS) { %>
+
           <form method="POST" action="/urls/<%=shortURLS%>/delete">
-            <a href="/u/<%=shortURLS%>"> <%= shortURLS %> </a> - <%= urls[shortURLS]["longURL"] %> - <%= urls[shortURLS]["userID"] %>
+            <tr>
+            <td> <a href="/u/<%=shortURLS%>"> <%= shortURLS %> </a> </td>
+            <td> <%= userURLS[shortURLS]["longURL"] %> </td>
+            <td> <%= userURLS[shortURLS]["userID"] %> </td>
             <button type="submit">DELETE</button> <a href="/urls/<%=shortURLS%>">Edit</a>
+            </tr>
           </form>
-        </li>
       <% } %>
-    </ul>
   <a href="/urls/new">link for shortening a new URL</a>
   </body>
 </html>

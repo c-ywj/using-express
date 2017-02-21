@@ -84,7 +84,6 @@ app.get("/urls", (req, res) => {
     users: users,
     userURLS: userURLS,
   };
-  console.log(userURLS);
   if(req.session.user_id) {
     res.status(200);
     res.render("urls_index", templateVars);
@@ -146,8 +145,6 @@ app.post("/urls", (req, res) => {
 });
 
 app.post("/urls/:shortURL/delete", (req, res) => {
-  console.log(urlDatabase[req.params.shortURL]);
-  console.log(urlDatabase[req.params.shortURL].userID);
   if (req.session.user_id && req.session.user_id === urlDatabase[req.params.shortURL]["userID"]) {
     delete urlDatabase[req.params.shortURL];
     res.redirect("/urls");
@@ -168,9 +165,7 @@ app.post("/login", (req, res) => {
   const { email, password } = req.body;
   const loginUserId = Object.keys(users).find((k) => users[k].email === email);
   const dbPassword = users[loginUserId]['password'] // use this for comparison
-  const hashed_password = bcrypt.hashSync(password, 10);
-  // bcrypt.compareSync(password, hashed_password);
-  if (!loginUserId || !bcrypt.compareSync(dbPassword, hashed_password)) {
+  if (!loginUserId || users[loginUserId].password !== dbPassword) {
     res.status(403);
     res.send();
   } else {
@@ -188,7 +183,6 @@ app.post("/register", (req, res) => {
   let emailInput = req.body["email"];
   let pwdInput = req.body["password"];
   const hashed_password = bcrypt.hashSync(pwdInput, 10);
-  let userID = generateRandomString();
   if (emailInput === "" && pwdInput === "") {
     res.status(400);
     res.end("Error" + 400);
@@ -196,11 +190,11 @@ app.post("/register", (req, res) => {
       res.status(400);
       res.end("Error" + 400);
   } else {
-    users[userID] = { "id": userID,
+    users[emailInput] = { "id": emailInput,
     "email": emailInput,
     "password": hashed_password,
     };
-    req.session.user_id = userID;
+    req.session.user_id = emailInput;
     res.redirect("/");
   }
 });

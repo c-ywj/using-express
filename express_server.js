@@ -27,12 +27,12 @@ const users = {
   "userRandomID": {
     id: "userRandomID",
     email: "user@example.com",
-    password: "purple-monkey-dinosaur"
+    password: "$2a$10$4p4eErzF5d6TTOhgEmalR.zR0ru8vnbX9ZeGdkD3dXkMk0YPOcezO"
   },
  "user2RandomID": {
     id: "user2RandomID",
     email: "user2@example.com",
-    password: "dishwasher-funk"
+    password: "$2a$10$waaltgS2hMUgNQogmDgOJecOkH.BMZg5AdDUpCj.5BIXNRP1BXMMO"
   }
 };
 
@@ -165,7 +165,9 @@ app.post("/login", (req, res) => {
   const { email, password } = req.body;
   const loginUserId = Object.keys(users).find((k) => users[k].email === email);
   const dbPassword = users[loginUserId]['password'] // use this for comparison
-  if (!loginUserId || users[loginUserId].password !== dbPassword) {
+  // const hashed_password = bcrypt.hashSync(password, 10);
+  // bcrypt.compareSync(password, hashed_password);
+  if (!loginUserId || !bcrypt.compareSync(password, dbPassword)) {
     res.status(403);
     res.send();
   } else {

@@ -1,12 +1,12 @@
-Welcome to TinyApp!
+<h3>Welcome to TinyApp!</h3>
 
-<a href="/register">Register Here!</a>
 
 <% if (user_id) {%>
   <form action="/logout" method="POST" style="margin:50px;">
     <button type="submit">Log out</button>
     <%= user_id %>
   </form>
+  <a href="/urls">Your personal URLs!</a>
 <% } else {%>
   <h1> Welcome! </h1>
   <p> <a href="/login">Login here!</a> </p>

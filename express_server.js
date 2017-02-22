@@ -46,6 +46,7 @@ function urlsForUser(id) {
   return userURLS;
 }
 
+//function for generating new shortURL ID's
 function generateRandomString () {
   const charBank = "1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
   let result = "";
@@ -56,6 +57,7 @@ function generateRandomString () {
   return result;
 }
 
+//function for checking matching emails (input against database emails)
 function checkForEmail (emailInput) {
   for (let key in users) {
     if (users[key]["email"] === emailInput) {
@@ -65,17 +67,17 @@ function checkForEmail (emailInput) {
 }
 
 
-//app.get in this case serves as the if statements: IF request is GET @ / ,
-//respond with respond object, with .end method to send back "Hello!"
+// To home page
 app.get("/", (req, res) => {
   let user_id = req.session.user_id;
   if(user_id) {
     res.redirect("/urls");
   } else {
-    res.redirect("/login");
+    res.render("urls_home");
   }
 });
 
+//Page containing all URLs owned by user
 app.get("/urls", (req, res) => {
   const userURLS = urlsForUser(req.session.user_id);
   let templateVars = {
@@ -93,6 +95,7 @@ app.get("/urls", (req, res) => {
   }
 });
 
+//Page for adding new links
 app.get("/urls/new", (req,res) => {
   let templateVars = {
     user_id: req.session.user_id,
@@ -106,28 +109,40 @@ app.get("/urls/new", (req,res) => {
   }
 });
 
+//Allows modification to shortURL content
 app.get("/urls/:shortURL", (req, res) => {
   let templateVars = {shortURL: req.params.shortURL,
-    realURL: urlDatabase[req.params.shortURL],
+    longURL: urlDatabase[req.params.shortURL],
     user_id: req.session.user_id,
     users: users
   };
-  res.render("urls_show", templateVars);
+  if(req.session.user_id) {
+    res.render("urls_show", templateVars);
+  } else if (req.session.user_id !== urlDatabase[req.params.shortURL].userID) {
+    res.sendStatus(403);
+  } else if (req.params.shortURL.length > 6 || req.params.shortURL !== urlDatabase[req.params.shortURL]) {
+    res.sendStatus(404);
+  } else {
+    res.status(401).redirect('/login');
+  }
 });
 
+//accesses website to the corresponding shortURL
 app.get("/u/:shortURL", (req, res) => {
   let originalURL = urlDatabase[req.params.shortURL]["longURL"];
   if(originalURL) {
     res.redirect(originalURL);
   } else {
-    res.status(404);
+    res.sendStatus(404);
   }
 });
 
+//register page
 app.get("/register", (req, res) => {
   res.render("urls_register");
 })
 
+//login page
 app.get("/login", (req, res) => {
   if(req.session.user_id) {
     res.redirect("/");
@@ -136,6 +151,7 @@ app.get("/login", (req, res) => {
   }
 });
 
+//Handler for new link submissions
 app.post("/urls", (req, res) => {
   let result = req.body;
   let randStr = generateRandomString();
@@ -144,6 +160,7 @@ app.post("/urls", (req, res) => {
   console.log(urlDatabase);
 });
 
+//Handler for deleting links
 app.post("/urls/:shortURL/delete", (req, res) => {
   if (req.session.user_id && req.session.user_id === urlDatabase[req.params.shortURL]["userID"]) {
     delete urlDatabase[req.params.shortURL];
@@ -156,38 +173,41 @@ app.post("/urls/:shortURL/delete", (req, res) => {
   }
 });
 
+//Handler for updating shortURL content
 app.post("/urls/:shortURL/update", (req, res) => {
   urlDatabase[req.params.shortURL]["longURL"] = req.body["original"];
   res.redirect("/urls");
 });
 
+//User verification
 app.post("/login", (req, res) => {
   const { email, password } = req.body;
   const loginUserId = Object.keys(users).find((k) => users[k].email === email);
-  const dbPassword = users[loginUserId]['password'] // use this for comparison
-  // const hashed_password = bcrypt.hashSync(password, 10);
-  // bcrypt.compareSync(password, hashed_password);
+  const dbPassword = users[loginUserId]['password'];
   if (!loginUserId || !bcrypt.compareSync(password, dbPassword)) {
     res.status(403);
     res.send();
+  } else if (email !== users[loginUserId].email) {
+    res.sendStatus(406);
   } else {
     req.session.user_id = users[loginUserId].id;
     res.redirect("/urls");
   }
 });
 
+//logout button
 app.post("/logout", (req, res) => {
   req.session = null;
   res.redirect("/urls");
 });
 
+//Handler for registration form, creates new user object
 app.post("/register", (req, res) => {
   let emailInput = req.body["email"];
   let pwdInput = req.body["password"];
   const hashed_password = bcrypt.hashSync(pwdInput, 10);
   if (emailInput === "" && pwdInput === "") {
     res.status(400);
-    res.end("Error" + 400);
   } else if (checkForEmail(emailInput)) {
       res.status(400);
       res.end("Error" + 400);
